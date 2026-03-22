@@ -1,0 +1,212 @@
+{
+  "name": "commitsense",
+  "displayName": "CommitSense",
+  "description": "Enhances AI code suggestions by injecting relevant Git history and blame info directly into the editor as context.",
+  "icon": "images/icon.png",
+  "version": "0.1.0",
+  "engines": {
+    "vscode": "^1.110.0"
+  },
+  "categories": [
+    "AI",
+    "SCM Providers",
+    "Other"
+  ],
+  "keywords": ["git", "copilot", "ai", "context", "gitlens", "blame", "history"],
+  "activationEvents": ["onStartupFinished"],
+  "main": "./extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "commitsense.injectContext",
+        "title": "CommitSense: Inject Git Context for AI",
+        "icon": "$(git-commit)"
+      },
+      {
+        "command": "commitsense.showCommitHistory",
+        "title": "CommitSense: Show Commit History",
+        "icon": "$(history)"
+      },
+      {
+        "command": "commitsense.clearContext",
+        "title": "CommitSense: Clear Injected Context",
+        "icon": "$(clear-all)"
+      },
+      {
+        "command": "commitsense.toggleCodeLens",
+        "title": "CommitSense: Toggle CodeLens Decorations",
+        "icon": "$(eye)"
+      },
+      {
+        "command": "commitsense.injectBlame",
+        "title": "CommitSense: Show Inline Blame for Selection",
+        "icon": "$(person)"
+      }
+    ],
+    "keybindings": [
+      {
+        "command": "commitsense.injectContext",
+        "key": "ctrl+shift+g ctrl+shift+i",
+        "mac": "cmd+shift+g cmd+shift+i",
+        "when": "editorFocus"
+      },
+      {
+        "command": "commitsense.showCommitHistory",
+        "key": "ctrl+shift+g ctrl+shift+h",
+        "mac": "cmd+shift+g cmd+shift+h",
+        "when": "editorFocus"
+      }
+    ],
+    "menus": {
+      "editor/context": [
+        {
+          "command": "commitsense.injectContext",
+          "group": "commitsense@1",
+          "when": "editorFocus && resourceScheme == file"
+        },
+        {
+          "command": "commitsense.injectBlame",
+          "group": "commitsense@2",
+          "when": "editorFocus && resourceScheme == file"
+        },
+        {
+          "command": "commitsense.showCommitHistory",
+          "group": "commitsense@3",
+          "when": "editorFocus && resourceScheme == file"
+        }
+      ],
+      "editor/title": [
+        {
+          "command": "commitsense.injectContext",
+          "group": "navigation",
+          "when": "resourceScheme == file"
+        }
+      ]
+    },
+    "configuration": {
+      "title": "CommitSense",
+      "properties": {
+        "commitsense.maxCommits": {
+          "type": "number",
+          "default": 10,
+          "minimum": 1,
+          "maximum": 100,
+          "description": "Maximum number of recent commits to fetch and inject."
+        },
+        "commitsense.autoInject": {
+          "type": "boolean",
+          "default": false,
+          "description": "Automatically inject Git context when a file is opened."
+        },
+        "commitsense.showCodeLens": {
+          "type": "boolean",
+          "default": true,
+          "description": "Show CodeLens decorations with commit info at the top of files."
+        },
+        "commitsense.showHover": {
+          "type": "boolean",
+          "default": true,
+          "description": "Show Git blame info in hover tooltips."
+        },
+        "commitsense.contextPosition": {
+          "type": "string",
+          "enum": ["top", "cursor"],
+          "default": "top",
+          "description": "Where to insert the injected context comment block."
+        },
+        "commitsense.includeDiff": {
+          "type": "boolean",
+          "default": false,
+          "description": "Include a recent diff summary in the injected context block."
+        },
+        "commitsense.preferGitLens": {
+          "type": "boolean",
+          "default": true,
+          "description": "Use the GitLens extension API when available for richer blame data."
+        }
+      }
+    },
+    "chatParticipants": [
+      {
+        "id": "commitsense",
+        "name": "commitsense",
+        "fullName": "CommitSense",
+        "description": "Ask questions about the current file with full git history as context. Powered by commit history, blame data, and Copilot.",
+        "isSticky": true,
+        "commands": [
+          {
+            "name": "history",
+            "description": "Show a formatted table of recent commits for the active file"
+          },
+          {
+            "name": "blame",
+            "description": "Explain who changed the current line and why, using commit context"
+          },
+          {
+            "name": "suggest",
+            "description": "Ask Copilot for a suggestion informed by this file's git history"
+          }
+        ]
+      }
+    ],
+    "languageModelTools": [
+      {
+        "name": "commitsense_getFileHistory",
+        "tags": ["git", "history", "commits", "scm"],
+        "displayName": "Get File Git History",
+        "modelDescription": "Fetches the recent commit history for a specific file, returning hashes, authors, dates, and commit messages. Use this whenever you need to understand how a file has evolved, who works on it, or what recent changes were made.",
+        "canBeReferencedInPrompt": true,
+        "icon": "$(git-commit)",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "filePath": {
+              "type": "string",
+              "description": "Absolute path to the file to get history for"
+            },
+            "maxCommits": {
+              "type": "number",
+              "description": "Maximum number of commits to return (default: 10)"
+            }
+          },
+          "required": ["filePath"]
+        }
+      },
+      {
+        "name": "commitsense_getLineBlame",
+        "tags": ["git", "blame", "scm"],
+        "displayName": "Get Line Blame Info",
+        "modelDescription": "Gets git blame information for a specific line in a file: the commit hash, author, date, and commit message. Use this to understand who last changed a particular line and why.",
+        "canBeReferencedInPrompt": true,
+        "icon": "$(person)",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "filePath": {
+              "type": "string",
+              "description": "Absolute path to the file"
+            },
+            "line": {
+              "type": "number",
+              "description": "0-based line number to get blame for"
+            }
+          },
+          "required": ["filePath", "line"]
+        }
+      }
+    ]
+  },
+  "scripts": {
+    "lint": "eslint .",
+    "pretest": "npm run lint",
+    "test": "vscode-test"
+  },
+  "devDependencies": {
+    "@types/vscode": "^1.110.0",
+    "@types/mocha": "^10.0.10",
+    "@types/node": "22.x",
+    "eslint": "^9.39.3",
+    "@vscode/test-cli": "^0.0.12",
+    "@vscode/test-electron": "^2.5.2"
+  }
+}
