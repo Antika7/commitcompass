@@ -1,4 +1,4 @@
-// CommitSense — Injects Git history as AI-readable context into the VS Code editor.
+// CommitCompass — Injects Git history as AI-readable context into the VS Code editor.
 // Supports GitLens API, vscode.git API, and raw git shell fallback.
 
 'use strict';
@@ -172,7 +172,7 @@ function getCommentStyle(languageId) {
 	const html   = new Set(['html','xml','svg','markdown']);
 
 	if (block.has(languageId))  return { start: '/**',  line: ' *',  end: ' */' };
-	if (hash.has(languageId))   return { start: '# ╔══ CommitSense ══╗', line: '#', end: '# ╚══════════════════╝' };
+	if (hash.has(languageId))   return { start: '# ╔══ CommitCompass ══╗', line: '#', end: '# ╚══════════════════╝' };
 	if (html.has(languageId))   return { start: '<!--', line: '   ', end: '-->' };
 	return { start: '/**', line: ' *', end: ' */' };
 }
@@ -185,7 +185,7 @@ function buildContextComment(commits, filePath, languageId, includeDiff, diff) {
 	const cs = getCommentStyle(languageId);
 	const lines = [
 		`${cs.start}`,
-		`${cs.line} CommitSense — AI Context Block`,
+		`${cs.line} CommitCompass — AI Context Block`,
 		`${cs.line} File   : ${fileName}`,
 		`${cs.line} Generated: ${new Date().toLocaleString()}`,
 		`${cs.line}`,
@@ -213,7 +213,7 @@ function buildContextComment(commits, filePath, languageId, includeDiff, diff) {
 
 // ─── CodeLens provider ───────────────────────────────────────────────────────
 
-class CommitSenseCodeLensProvider {
+class CommitCompassCodeLensProvider {
 	constructor() {
 		/** @type {vscode.EventEmitter<void>} */
 		this._change = new vscode.EventEmitter();
@@ -230,7 +230,7 @@ class CommitSenseCodeLensProvider {
 
 	/** @param {vscode.TextDocument} document */
 	async provideCodeLenses(document) {
-		const cfg = vscode.workspace.getConfiguration('commitsense');
+		const cfg = vscode.workspace.getConfiguration('commitcompass');
 		if (!this._enabled || !cfg.get('showCodeLens', true)) return [];
 		if (document.uri.scheme !== 'file') return [];
 
@@ -242,7 +242,7 @@ class CommitSenseCodeLensProvider {
 		const lenses  = [
 			new vscode.CodeLens(range, {
 				title:     `$(git-commit) [${latest.hash}] ${latest.message} — ${latest.author} (${latest.date})`,
-				command:   'commitsense.showCommitHistory',
+				   command:   'commitcompass.showCommitHistory',
 				arguments: [document.uri],
 			}),
 		];
@@ -250,7 +250,7 @@ class CommitSenseCodeLensProvider {
 		if (commits.length > 1) {
 			lenses.push(new vscode.CodeLens(range, {
 				title:     `$(history) ${commits.length} recent commits — inject as AI context`,
-				command:   'commitsense.injectContext',
+				   command:   'commitcompass.injectContext',
 				arguments: [document.uri],
 			}));
 		}
@@ -261,10 +261,10 @@ class CommitSenseCodeLensProvider {
 
 // ─── Hover provider ──────────────────────────────────────────────────────────
 
-class CommitSenseHoverProvider {
+class CommitCompassHoverProvider {
 	/** @param {vscode.TextDocument} document @param {vscode.Position} position */
 	async provideHover(document, position) {
-		const cfg = vscode.workspace.getConfiguration('commitsense');
+		const cfg = vscode.workspace.getConfiguration('commitcompass');
 		if (!cfg.get('showHover', true)) return null;
 		if (document.uri.scheme !== 'file') return null;
 
@@ -273,7 +273,7 @@ class CommitSenseHoverProvider {
 
 		const md = new vscode.MarkdownString(undefined, true);
 		md.isTrusted = true;
-		md.appendMarkdown('**CommitSense — Blame Info**\n\n');
+		md.appendMarkdown('**CommitCompass — Blame Info**\n\n');
 		md.appendMarkdown('| Field | Value |\n|---|---|\n');
 		md.appendMarkdown(`| Commit | \`${blame.hash}\` |\n`);
 		md.appendMarkdown(`| Author | ${escapeMarkdown(blame.author ?? 'Unknown')} |\n`);
@@ -301,7 +301,7 @@ function getContextDecorationType() {
 			borderStyle:     'solid',
 			borderWidth:     '0 0 0 3px',
 			after: {
-				contentText: ' ← CommitSense context',
+				   contentText: ' ← CommitCompass context',
 				color:       new vscode.ThemeColor('editorCodeLens.foreground'),
 				fontStyle:   'italic',
 				margin:      '0 0 0 1em',
@@ -316,22 +316,22 @@ const injectedFiles = new Set();
 
 // ─── Command implementations ─────────────────────────────────────────────────
 
-/** commitsense.injectContext */
+/** commitcompass.injectContext */
 async function cmdInjectContext(uri) {
 	const editor = vscode.window.activeTextEditor;
 	if (!editor) {
-		vscode.window.showWarningMessage('CommitSense: No active editor.');
+		vscode.window.showWarningMessage('CommitCompass: No active editor.');
 		return;
 	}
 	const fileUri = (uri instanceof vscode.Uri) ? uri : editor.document.uri;
-	const cfg = vscode.workspace.getConfiguration('commitsense');
+	const cfg = vscode.workspace.getConfiguration('commitcompass');
 
 	await vscode.window.withProgress(
-		{ location: vscode.ProgressLocation.Notification, title: 'CommitSense: Fetching git history…', cancellable: false },
+			   { location: vscode.ProgressLocation.Notification, title: 'CommitCompass: Fetching git history…', cancellable: false },
 		async () => {
 			const commits = await getCommitsForFile(fileUri, cfg.get('maxCommits', 10));
 			if (!commits.length) {
-				vscode.window.showWarningMessage('CommitSense: No git history found for this file.');
+					   vscode.window.showWarningMessage('CommitCompass: No git history found for this file.');
 				return;
 			}
 
@@ -357,7 +357,7 @@ async function cmdInjectContext(uri) {
 			injectedFiles.add(fileUri.fsPath);
 
 			const action = await vscode.window.showInformationMessage(
-				`CommitSense: Injected ${commits.length} commits as AI context.`,
+				   `CommitCompass: Injected ${commits.length} commits as AI context.`,
 				'Clear Context'
 			);
 			if (action === 'Clear Context') cmdClearContext();
@@ -365,17 +365,17 @@ async function cmdInjectContext(uri) {
 	);
 }
 
-/** commitsense.showCommitHistory */
+/** commitcompass.showCommitHistory */
 async function cmdShowCommitHistory(uri) {
 	const editor  = vscode.window.activeTextEditor;
 	const fileUri = (uri instanceof vscode.Uri) ? uri : editor?.document.uri;
-	if (!fileUri) { vscode.window.showWarningMessage('CommitSense: No file open.'); return; }
+	if (!fileUri) { vscode.window.showWarningMessage('CommitCompass: No file open.'); return; }
 
-	const cfg     = vscode.workspace.getConfiguration('commitsense');
+	const cfg     = vscode.workspace.getConfiguration('commitcompass');
 	const commits = await getCommitsForFile(fileUri, cfg.get('maxCommits', 20));
 
 	if (!commits.length) {
-		vscode.window.showWarningMessage('CommitSense: No history found for this file.');
+			   vscode.window.showWarningMessage('CommitCompass: No history found for this file.');
 		return;
 	}
 
@@ -403,25 +403,25 @@ async function cmdShowCommitHistory(uri) {
 	}
 }
 
-/** commitsense.clearContext */
+/** commitcompass.clearContext */
 function cmdClearContext() {
 	const editor = vscode.window.activeTextEditor;
 	if (!editor) return;
 	editor.setDecorations(getContextDecorationType(), []);
 	injectedFiles.delete(editor.document.uri.fsPath);
-	vscode.window.showInformationMessage('CommitSense: Context decorations cleared.');
+	vscode.window.showInformationMessage('CommitCompass: Context decorations cleared.');
 }
 
-/** commitsense.toggleCodeLens */
+/** commitcompass.toggleCodeLens */
 function cmdToggleCodeLens(provider) {
 	const enabled = provider.toggle();
-	vscode.window.showInformationMessage(`CommitSense: CodeLens ${enabled ? 'enabled' : 'disabled'}.`);
+	vscode.window.showInformationMessage(`CommitCompass: CodeLens ${enabled ? 'enabled' : 'disabled'}.`);
 }
 
-/** commitsense.injectBlame — shows inline blame for each selected line */
+/** commitcompass.injectBlame — shows inline blame for each selected line */
 async function cmdInjectBlame() {
 	const editor = vscode.window.activeTextEditor;
-	if (!editor) { vscode.window.showWarningMessage('CommitSense: No active editor.'); return; }
+	if (!editor) { vscode.window.showWarningMessage('CommitCompass: No active editor.'); return; }
 	if (editor.document.uri.scheme !== 'file') return;
 
 	const blameResults = [];
@@ -431,7 +431,7 @@ async function cmdInjectBlame() {
 	}
 
 	if (!blameResults.length) {
-		vscode.window.showWarningMessage('CommitSense: No blame data available for the selected lines.');
+			   vscode.window.showWarningMessage('CommitCompass: No blame data available for the selected lines.');
 		return;
 	}
 
@@ -455,7 +455,7 @@ async function cmdInjectBlame() {
 
 	// Auto-dispose after 30 s
 	setTimeout(() => decType.dispose(), 30_000);
-	vscode.window.showInformationMessage('CommitSense: Inline blame shown (auto-clears in 30 s).');
+	vscode.window.showInformationMessage('CommitCompass: Inline blame shown (auto-clears in 30 s).');
 }
 
 // ─── Status-bar item ─────────────────────────────────────────────────────────
@@ -467,17 +467,17 @@ async function cmdInjectBlame() {
  */
 async function updateStatusBar(item, editor) {
 	if (!editor || editor.document.uri.scheme !== 'file') {
-		item.text    = '$(git-commit) CommitSense';
-		item.tooltip = 'CommitSense: Open a file to see its latest commit';
+		item.text    = '$(git-commit) CommitCompass';
+		item.tooltip = 'CommitCompass: Open a file to see its latest commit';
 		return;
 	}
 	const commits = await getCommitsForFile(editor.document.uri, 1);
 	if (commits.length) {
 		item.text    = `$(git-commit) ${commits[0].hash} · ${commits[0].author}`;
-		item.tooltip = `CommitSense: ${commits[0].message} (${commits[0].date}) — click to view history`;
+			   item.tooltip = `CommitCompass: ${commits[0].message} (${commits[0].date}) — click to view history`;
 	} else {
-		item.text    = '$(git-commit) CommitSense';
-		item.tooltip = 'CommitSense: No git history found for this file';
+		item.text    = '$(git-commit) CommitCompass';
+		item.tooltip = 'CommitCompass: No git history found for this file';
 	}
 }
 
@@ -500,9 +500,9 @@ function buildHistoryContextString(commits, filePath) {
 }
 
 /**
- * Registers the @commitsense Copilot Chat participant.
- * Users can invoke it with: @commitsense <question>
- * or slash commands: @commitsense /history, /blame, /suggest
+ * Registers the @commitcompass Copilot Chat participant.
+ * Users can invoke it with: @commitcompass <question>
+ * or slash commands: @commitcompass /history, /blame, /suggest
  * @param {vscode.ExtensionContext} context
  */
 function registerChatParticipant(context) {
@@ -511,11 +511,11 @@ function registerChatParticipant(context) {
 		const fileUri = editor?.document?.uri;
 
 		if (!fileUri || fileUri.scheme !== 'file') {
-			stream.markdown('> **CommitSense**: Open a file in the editor, then ask your question.');
+			   stream.markdown('> **CommitCompass**: Open a file in the editor, then ask your question.');
 			return {};
 		}
 
-		const cfg        = vscode.workspace.getConfiguration('commitsense');
+		const cfg        = vscode.workspace.getConfiguration('commitcompass');
 		const commits    = await getCommitsForFile(fileUri, cfg.get('maxCommits', 10));
 		const historyCtx = buildHistoryContextString(commits, fileUri.fsPath);
 
@@ -597,7 +597,7 @@ function registerChatParticipant(context) {
 		return {};
 	};
 
-	const participant      = vscode.chat.createChatParticipant('commitsense', handler);
+	const participant      = vscode.chat.createChatParticipant('commitcompass', handler);
 	participant.iconPath   = new vscode.ThemeIcon('git-commit');
 	context.subscriptions.push(participant);
 }
@@ -609,8 +609,8 @@ function registerChatParticipant(context) {
  */
 function registerLMTools(context) {
 	// Tool 1: fetch commit history for a file
-	context.subscriptions.push(
-		vscode.lm.registerTool('commitsense_getFileHistory', {
+	       context.subscriptions.push(
+		       vscode.lm.registerTool('commitcompass_getFileHistory', {
 			async invoke(options) {
 				const { filePath, maxCommits = 10 } = options.input;
 				const uri     = vscode.Uri.file(filePath);
@@ -624,8 +624,8 @@ function registerLMTools(context) {
 	);
 
 	// Tool 2: get blame for a specific line
-	context.subscriptions.push(
-		vscode.lm.registerTool('commitsense_getLineBlame', {
+	       context.subscriptions.push(
+		       vscode.lm.registerTool('commitcompass_getLineBlame', {
 			async invoke(options) {
 				const { filePath, line } = options.input;
 				const uri   = vscode.Uri.file(filePath);
@@ -653,33 +653,33 @@ function registerLMTools(context) {
 
 /** @param {vscode.ExtensionContext} context */
 function activate(context) {
-	console.log('CommitSense is now active!');
+	console.log('CommitCompass is now active!');
 
-	const codeLensProvider = new CommitSenseCodeLensProvider();
-	const hoverProvider    = new CommitSenseHoverProvider();
+	const codeLensProvider = new CommitCompassCodeLensProvider();
+	const hoverProvider    = new CommitCompassHoverProvider();
 
 	// CodeLens — all files on disk
-	context.subscriptions.push(
-		vscode.languages.registerCodeLensProvider({ scheme: 'file' }, codeLensProvider)
-	);
+	       context.subscriptions.push(
+		       vscode.languages.registerCodeLensProvider({ scheme: 'file' }, codeLensProvider)
+	       );
 
 	// Hover — blame tooltips
-	context.subscriptions.push(
-		vscode.languages.registerHoverProvider({ scheme: 'file' }, hoverProvider)
-	);
+	       context.subscriptions.push(
+		       vscode.languages.registerHoverProvider({ scheme: 'file' }, hoverProvider)
+	       );
 
 	// Commands
-	context.subscriptions.push(
-		vscode.commands.registerCommand('commitsense.injectContext',      cmdInjectContext),
-		vscode.commands.registerCommand('commitsense.showCommitHistory',  cmdShowCommitHistory),
-		vscode.commands.registerCommand('commitsense.clearContext',       cmdClearContext),
-		vscode.commands.registerCommand('commitsense.toggleCodeLens',     () => cmdToggleCodeLens(codeLensProvider)),
-		vscode.commands.registerCommand('commitsense.injectBlame',        cmdInjectBlame),
-	);
+	       context.subscriptions.push(
+		       vscode.commands.registerCommand('commitcompass.injectContext',      cmdInjectContext),
+		       vscode.commands.registerCommand('commitcompass.showCommitHistory',  cmdShowCommitHistory),
+		       vscode.commands.registerCommand('commitcompass.clearContext',       cmdClearContext),
+		       vscode.commands.registerCommand('commitcompass.toggleCodeLens',     () => cmdToggleCodeLens(codeLensProvider)),
+		       vscode.commands.registerCommand('commitcompass.injectBlame',        cmdInjectBlame),
+	       );
 
 	// Status bar
 	const statusBar       = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, 100);
-	statusBar.command     = 'commitsense.showCommitHistory';
+	statusBar.command     = 'commitcompass.showCommitHistory';
 	statusBar.show();
 	context.subscriptions.push(statusBar);
 	updateStatusBar(statusBar, vscode.window.activeTextEditor);
@@ -691,13 +691,13 @@ function activate(context) {
 	registerLMTools(context);
 
 	// React to editor changes
-	context.subscriptions.push(
-		vscode.window.onDidChangeActiveTextEditor(async editor => {
-			updateStatusBar(statusBar, editor);
+	       context.subscriptions.push(
+		       vscode.window.onDidChangeActiveTextEditor(async editor => {
+			       updateStatusBar(statusBar, editor);
 
-			// Auto-inject if configured and not already done for this file
-			if (!editor) return;
-			const cfg = vscode.workspace.getConfiguration('commitsense');
+			       // Auto-inject if configured and not already done for this file
+			       if (!editor) return;
+			       const cfg = vscode.workspace.getConfiguration('commitcompass');
 			if (!cfg.get('autoInject', false)) return;
 			if (injectedFiles.has(editor.document.uri.fsPath)) return;
 			// Small delay so the editor settles before we modify it

@@ -1,12 +1,12 @@
-# CommitSense
+# CommitCompass
 
-**CommitSense** brings Git history into your AI workflow—so your editor doesn’t just understand code, it understands *why it exists*.
+**CommitCompass** brings Git history into your AI workflow—so your editor doesn’t just understand code, it understands *why it exists*.
 
-Modern AI tools can read your code, but they lack context about past decisions, bug fixes, and evolution. CommitSense bridges that gap by turning Git history into AI-readable context directly inside VS Code.
+Modern AI tools can read your code, but they lack context about past decisions, bug fixes, and evolution. CommitCompass bridges that gap by turning Git history into AI-readable context directly inside VS Code.
 
 ---
 
-## Why CommitSense?
+## Why CommitCompass?
 
 AI assistants struggle with questions like:
 
@@ -23,7 +23,7 @@ AI assistants struggle with questions like:
 
 ### The solution
 
-CommitSense transforms Git history into **structured, relevant, AI-friendly context**—so your assistant can give smarter, more accurate answers.
+CommitCompass transforms Git history into **structured, relevant, AI-friendly context**—so your assistant can give smarter, more accurate answers.
 
 ---
 
@@ -40,7 +40,7 @@ CommitSense transforms Git history into **structured, relevant, AI-friendly cont
 
 ---
 
-### Copilot Chat Integration (`@commitsense`)
+### Copilot Chat Integration (`@commitcompass`)
 
 * `/history` → View commit history in chat
 * `/blame` → Explain why a line was changed
@@ -97,21 +97,21 @@ CommitSense transforms Git history into **structured, relevant, AI-friendly cont
 
 ## Extension Settings
 
-CommitSense provides configurable options:
+CommitCompass provides configurable options:
 
-* `commitsense.maxCommits`
+* `commitcompass.maxCommits`
   Number of commits to include in context
 
-* `commitsense.includeDiffs`
+* `commitcompass.includeDiffs`
   Include diff summaries in injected context
 
-* `commitsense.contextPosition`
+* `commitcompass.contextPosition`
   কোথ to inject context (`top` or `cursor`)
 
-* `commitsense.enableCodeLens`
+* `commitcompass.enableCodeLens`
   Enable/disable CodeLens annotations
 
-* `commitsense.enableHover`
+* `commitcompass.enableHover`
   Enable/disable hover blame tooltips
 
 ---
@@ -145,10 +145,10 @@ CommitSense provides configurable options:
 
 ## Final Thought
 
-CommitSense isn’t just another Git tool.
+CommitCompass isn’t just another Git tool.
 
 It’s a bridge between **version control and AI reasoning**—helping your editor understand not just *what your code does*, but *why it exists*.
 
 ---
 
-**Enjoy using CommitSense**
+**Enjoy using CommitCompass**

@@ -1,7 +1,8 @@
 {
-  "name": "commitsense",
-  "displayName": "CommitSense",
+  "name": "commitcompass",
+  "displayName": "CommitCompass",
   "description": "Enhances AI code suggestions by injecting relevant Git history and blame info directly into the editor as context.",
+  "publisher": "antika",
   "icon": "images/icon.png",
   "version": "0.1.0",
   "engines": {
@@ -18,40 +19,40 @@
   "contributes": {
     "commands": [
       {
-        "command": "commitsense.injectContext",
-        "title": "CommitSense: Inject Git Context for AI",
+        "command": "commitcompass.injectContext",
+        "title": "CommitCompass: Inject Git Context for AI",
         "icon": "$(git-commit)"
       },
       {
-        "command": "commitsense.showCommitHistory",
-        "title": "CommitSense: Show Commit History",
+        "command": "commitcompass.showCommitHistory",
+        "title": "CommitCompass: Show Commit History",
         "icon": "$(history)"
       },
       {
-        "command": "commitsense.clearContext",
-        "title": "CommitSense: Clear Injected Context",
+        "command": "commitcompass.clearContext",
+        "title": "CommitCompass: Clear Injected Context",
         "icon": "$(clear-all)"
       },
       {
-        "command": "commitsense.toggleCodeLens",
-        "title": "CommitSense: Toggle CodeLens Decorations",
+        "command": "commitcompass.toggleCodeLens",
+        "title": "CommitCompass: Toggle CodeLens Decorations",
         "icon": "$(eye)"
       },
       {
-        "command": "commitsense.injectBlame",
-        "title": "CommitSense: Show Inline Blame for Selection",
+        "command": "commitcompass.injectBlame",
+        "title": "CommitCompass: Show Inline Blame for Selection",
         "icon": "$(person)"
       }
     ],
     "keybindings": [
       {
-        "command": "commitsense.injectContext",
+        "command": "commitcompass.injectContext",
         "key": "ctrl+shift+g ctrl+shift+i",
         "mac": "cmd+shift+g cmd+shift+i",
         "when": "editorFocus"
       },
       {
-        "command": "commitsense.showCommitHistory",
+        "command": "commitcompass.showCommitHistory",
         "key": "ctrl+shift+g ctrl+shift+h",
         "mac": "cmd+shift+g cmd+shift+h",
         "when": "editorFocus"
@@ -60,66 +61,66 @@
     "menus": {
       "editor/context": [
         {
-          "command": "commitsense.injectContext",
-          "group": "commitsense@1",
+          "command": "commitcompass.injectContext",
+          "group": "commitcompass@1",
           "when": "editorFocus && resourceScheme == file"
         },
         {
-          "command": "commitsense.injectBlame",
-          "group": "commitsense@2",
+          "command": "commitcompass.injectBlame",
+          "group": "commitcompass@2",
           "when": "editorFocus && resourceScheme == file"
         },
         {
-          "command": "commitsense.showCommitHistory",
-          "group": "commitsense@3",
+          "command": "commitcompass.showCommitHistory",
+          "group": "commitcompass@3",
           "when": "editorFocus && resourceScheme == file"
         }
       ],
       "editor/title": [
         {
-          "command": "commitsense.injectContext",
+          "command": "commitcompass.injectContext",
           "group": "navigation",
           "when": "resourceScheme == file"
         }
       ]
     },
     "configuration": {
-      "title": "CommitSense",
+      "title": "CommitCompass",
       "properties": {
-        "commitsense.maxCommits": {
+        "commitcompass.maxCommits": {
           "type": "number",
           "default": 10,
           "minimum": 1,
           "maximum": 100,
           "description": "Maximum number of recent commits to fetch and inject."
         },
-        "commitsense.autoInject": {
+        "commitcompass.autoInject": {
           "type": "boolean",
           "default": false,
           "description": "Automatically inject Git context when a file is opened."
         },
-        "commitsense.showCodeLens": {
+        "commitcompass.showCodeLens": {
           "type": "boolean",
           "default": true,
           "description": "Show CodeLens decorations with commit info at the top of files."
         },
-        "commitsense.showHover": {
+        "commitcompass.showHover": {
           "type": "boolean",
           "default": true,
           "description": "Show Git blame info in hover tooltips."
         },
-        "commitsense.contextPosition": {
+        "commitcompass.contextPosition": {
           "type": "string",
           "enum": ["top", "cursor"],
           "default": "top",
           "description": "Where to insert the injected context comment block."
         },
-        "commitsense.includeDiff": {
+        "commitcompass.includeDiff": {
           "type": "boolean",
           "default": false,
           "description": "Include a recent diff summary in the injected context block."
         },
-        "commitsense.preferGitLens": {
+        "commitcompass.preferGitLens": {
           "type": "boolean",
           "default": true,
           "description": "Use the GitLens extension API when available for richer blame data."
@@ -128,9 +129,9 @@
     },
     "chatParticipants": [
       {
-        "id": "commitsense",
-        "name": "commitsense",
-        "fullName": "CommitSense",
+        "id": "commitcompass",
+        "name": "commitcompass",
+        "fullName": "CommitCompass",
         "description": "Ask questions about the current file with full git history as context. Powered by commit history, blame data, and Copilot.",
         "isSticky": true,
         "commands": [
@@ -151,7 +152,7 @@
     ],
     "languageModelTools": [
       {
-        "name": "commitsense_getFileHistory",
+        "name": "commitcompass_getFileHistory",
         "tags": ["git", "history", "commits", "scm"],
         "displayName": "Get File Git History",
         "modelDescription": "Fetches the recent commit history for a specific file, returning hashes, authors, dates, and commit messages. Use this whenever you need to understand how a file has evolved, who works on it, or what recent changes were made.",
@@ -173,7 +174,7 @@
         }
       },
       {
-        "name": "commitsense_getLineBlame",
+        "name": "commitcompass_getLineBlame",
         "tags": ["git", "blame", "scm"],
         "displayName": "Get Line Blame Info",
         "modelDescription": "Gets git blame information for a specific line in a file: the commit hash, author, date, and commit message. Use this to understand who last changed a particular line and why.",
